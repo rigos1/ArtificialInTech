@@ -1,6 +1,3 @@
-import enum
-
-
 class Bayes:
     
     def __init__(self, hypos, priors, obs, likelihoods):
@@ -26,7 +23,13 @@ class Bayes:
         for i, prior in enumerate(priors):
             result.append(prior*self.likelihood(observation,self.hypos[i])/self.norm_constant(observation))
         return result
-
+    
+    def compute_posterior(self, observations):
+        posterior = self.priors
+        for observation in observations:
+            posterior = self.single_posterior_update(observation, posterior)
+            self.priors = posterior
+        return posterior
         
 
 
@@ -45,6 +48,14 @@ if __name__ == '__main__':
     print("normalizing constant for vanilla: %s" % n_c)
     p_1 = b.single_posterior_update("vanilla", [0.5, 0.5])
     print("vanilla - posterior: %s" % p_1)
-    # p_2 = b.compute_posterior(["chocolate", "vanilla"])
+    p_2 = b.compute_posterior(["chocolate", "vanilla"])
+    print("chocolate, vanilla - posterior: %s" % p_2)
 
-    # print("chocolate, vanilla - posterior: %s" % p_2)
+
+    hypos = ["beginner", "intermediate", "advanced", "expert"]
+    priors = [0.25, 0.25, 0.25, 0.25]
+    obs = ["yellow", "red", "blue", "black", "white"]
+    likelihood = [[0.05,0.1,0.4,0.25,0.2], [0.1,0.2,0.4,0.2,0.1], [0.2,0.4,0.25,0.1,0.05], [0.3,0.5,0.125,0.05,0.025]]
+    b = Bayes(hypos, priors, obs, likelihood)
+    p_2 = b.compute_posterior(["yellow", "white", "blue", "red", "red", "blue"])
+    print("archer - posterior: %s" % p_2)
