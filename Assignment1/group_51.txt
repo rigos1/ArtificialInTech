@@ -1,0 +1,4 @@
+Question 1 - Probability of vanilla cookie coming from Bowl 1: 0.636
+Question 2 - Probability of chocolate and vanilla cookie coming from Bowl 2: 0.533
+Question 3 - Probability of archer being intermediate: 0.306
+Question 4 - Most probable level of the archer: advanced
