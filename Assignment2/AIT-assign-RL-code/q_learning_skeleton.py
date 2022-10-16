@@ -1,6 +1,7 @@
 import numpy as np
 import random
-NUM_EPISODES = 1000
+
+NUM_EPISODES = 300
 MAX_EPISODE_LENGTH = 500
 
 
@@ -21,15 +22,17 @@ class QLearner():
         self.learning_rate = learning_rate
         self.num_states = num_states
         self.num_actions = num_actions
-
+        self.episode_durrations = []
         self.q = np.zeros((num_states,num_actions))
         
     # TODO: Select some interesting statistics to keep track of
     # Maybe total reward of the episode
-    def reset_episode(self):
+    def reset_episode(self,episode_duration):
+
         """
         Here you can update some of the statistics that could be helpful to maintain
         """
+        self.episode_durrations.append(episode_duration)
         pass
 
 
@@ -57,17 +60,26 @@ class QLearner():
     # want us to fix this with one of those solutions (probably the first)
     # However I'm not sure, maybe we should ask on Answers EWI
     def select_action(self, state): 
-        selection = random.random()
+        """selection = random.random()
         if selection <= EPSILON:
             return random.randrange(self.num_actions)
         else:
-            return np.argmax(self.q[state][:])
+            return np.argmax(self.q[state][:])"""
+
+        return np.random.choice([random.randrange(self.num_actions),np.argmax(self.q[state][:])],p=[EPSILON,(1-EPSILON)])
 
     # I cannot come up with something to print
-    def report(self):
+    def report(self,final):
         """
         Function to print useful information, printed during the main loop
         """
+        print("Last episode duration: ", self.episode_durrations[-1])
+        print("Average Epiusode duration: ", sum(self.episode_durrations)/len(self.episode_durrations))
+
+        if final:
+            return self.episode_durrations
+
+
         print("---")
 
 
