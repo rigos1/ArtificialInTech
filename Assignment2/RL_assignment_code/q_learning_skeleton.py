@@ -58,7 +58,8 @@ class QLearner():
     # However I'm not sure, maybe we should ask on Answers EWI
     def select_action(self, state): 
         selection = random.random()
-        if selection <= EPSILON:
+        all_zeroes = np.all(self.q[state][:] == self.q[state][0])
+        if selection <= EPSILON or all_zeroes:
             return random.randrange(self.num_actions)
         else:
             return np.argmax(self.q[state][:])
