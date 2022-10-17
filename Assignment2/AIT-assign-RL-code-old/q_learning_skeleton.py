@@ -4,7 +4,7 @@ import random
 NUM_EPISODES = 300
 MAX_EPISODE_LENGTH = 500
 
-
+T = 5
 DEFAULT_DISCOUNT = 0.9
 EPSILON = 0.05
 LEARNINGRATE = 0.1
@@ -16,7 +16,7 @@ class QLearner():
     """
     Q-learning agent
     """
-    def __init__(self, num_states, num_actions, discount=DEFAULT_DISCOUNT, learning_rate=LEARNINGRATE):
+    def __init__(self, num_states, num_actions, discount=DEFAULT_DISCOUNT, learning_rate=LEARNINGRATE, exploration_strat = 'boltz'):
         self.name = "agent1"
         self.discount = discount
         self.learning_rate = learning_rate
@@ -24,6 +24,8 @@ class QLearner():
         self.num_actions = num_actions
         self.episode_durrations = []
         self.q = np.zeros((num_states,num_actions))
+        self.strategey = exploration_strat
+        self.pi = np.ones((num_states,num_actions))
         
     # TODO: Select some interesting statistics to keep track of
     # Maybe total reward of the episode
@@ -45,7 +47,7 @@ class QLearner():
 
         if not done:
             update += self.learning_rate*self.discount*np.max(self.q[next_state][:])
-        
+
         self.q[state,action] = update
 
 
@@ -66,7 +68,17 @@ class QLearner():
         else:
             return np.argmax(self.q[state][:])"""
 
-        return np.random.choice([random.randrange(self.num_actions),np.argmax(self.q[state][:])],p=[EPSILON,(1-EPSILON)])
+        #Implement boltzma eiquation for exploration
+        if self.strategey == 'boltz':
+            self.pi = np.exp(self.q / max((T*(0.9**len(self.episode_durrations))), 0.03))
+            sum_rows = np.sum(self.pi, axis=1)
+            self.pi = (self.pi.T / sum_rows).T
+
+            return np.random.choice(range(self.num_actions), p= self.pi[state])
+
+        if self.strategey == 'egreedy':
+            return np.random.choice([random.randrange(self.num_actions),np.argmax(self.q[state][:])],p=[EPSILON,(1-EPSILON)])
+
 
     # I cannot come up with something to print
     def report(self,final):
