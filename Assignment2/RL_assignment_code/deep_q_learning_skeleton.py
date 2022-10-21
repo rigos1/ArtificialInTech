@@ -5,7 +5,7 @@ import random
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from collections import deque
 # if gpu is to be used
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -28,15 +28,16 @@ class ReplayMemory(object):
     # ReplayMemory should store the last "size" experiences
     # and be able to return a randomly sampled batch of experiences
     def __init__(self, size):
-        pass #<- TODO: you need to modify this
+        self.replay_memory = deque(maxlen=size)
 
     # Store experience in memory
     def store_experience(self, prev_obs, action, observation, reward, done):
-        pass #<- TODO: you need to modify this
+        transition = (prev_obs, action, observation, reward, done)
+        self.replay_memory.append(transition)
 
     # Randomly sample "batch_size" experiences from the memory and return them
     def sample_batch(self, batch_size):
-        pass #<- TODO: you need to modify this
+        return random.sample(self.replay_memory, batch_size)
 
 
 # DEBUG=True
@@ -239,9 +240,26 @@ class QLearner(object):
         self.last_obs = observation
 
         # TODO coding exercise 3: Do a batch update using experience stored in the replay memory
-        # if self.tot_stages > 10 * self.batch_size:
-            # sample a batch of batch_size from the replay memory
+        self.rm.store_experience(prev_observation, action, observation, reward, done)
+        if self.tot_stages > 10 * self.batch_size:
+            # sample a batch of batch_size from the memory
             # and update the network using this batch (batch_Q_update)
+            sample_batch = self.rm.sample_batch(self.batch_size)
+            sample_prev_obs = []
+            sample_actions = []
+            sample_observations = []
+            sample_rewards = []
+            sample_dones = []
+
+            for i in sample_batch:
+                sample_prev_obs.append(i[0])
+                sample_actions.append(i[1])
+                sample_observations.append(i[2])
+                sample_rewards.append(i[3])
+                sample_dones.append(i[4])
+
+            self.Q.batch_Q_update(np.array(sample_prev_obs), np.array(sample_actions), np.array(sample_observations), np.array(sample_rewards), np.array(sample_dones))
+
 
 
     def select_action(self):
