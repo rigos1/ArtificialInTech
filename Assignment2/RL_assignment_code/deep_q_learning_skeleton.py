@@ -259,6 +259,7 @@ class QLearner(object):
                 sample_dones.append(i[4])
 
             self.Q.batch_Q_update(np.array(sample_prev_obs), np.array(sample_actions), np.array(sample_observations), np.array(sample_rewards), np.array(sample_dones))
+            self.target_Q.batch_Q_update(np.array(sample_prev_obs), np.array(sample_actions), np.array(sample_observations), np.array(sample_rewards), np.array(sample_dones))
 
 
 
