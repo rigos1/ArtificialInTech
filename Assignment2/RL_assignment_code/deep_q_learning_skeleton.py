@@ -200,9 +200,10 @@ class QNet_MLP(QNet):
 
 
 class QLearner(object):
-    def __init__(self, env, q_function, discount=DEFAULT_DISCOUNT, rm_size=RMSIZE):
+    def __init__(self, env, q_function, target_q_function, discount=DEFAULT_DISCOUNT, rm_size=RMSIZE):
         self.env = env
         self.Q = q_function
+        self.target_Q = target_q_function
         self.rm = ReplayMemory(rm_size)  # replay memory stores (a subset of) experience across episode
         self.discount = discount
 
@@ -237,6 +238,7 @@ class QLearner(object):
         self.dis_r += reward * (self.discount ** self.stage)
         self.stage += 1
         self.Q.single_Q_update(prev_observation, action, observation, reward, done)
+        self.target_Q.single_Q_update(prev_observation, action, observation, reward, done)
         self.last_obs = observation
 
         # TODO coding exercise 3: Do a batch update using experience stored in the replay memory
@@ -296,3 +298,9 @@ class QLearner(object):
         print("%s: mean r in this episode:  %s" % (name, mean_r_this_ep))
         print("%s: mean r in lifetime:      %s" % (name, mean_r))
         print("%s: mean return per episode:   %s" % (name, mean_r_ep))
+        
+         #append values in file
+        a = str(mean_r_this_ep)+", "+str(mean_r)+", "+str(mean_r_ep)+"\n"
+        with open('./recorded_episodes/rewards.csv', 'a') as myfile:
+            myfile.write(a)
+        myfile.close()
